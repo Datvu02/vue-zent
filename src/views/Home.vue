@@ -1,25 +1,29 @@
 <template>
-  <AdminLayout>
-      <template #logo>
-          <h2>Dashboard</h2>
-      </template>
-      <template #content>
-          <router-view/>
-      </template>
-  </AdminLayout>
+  <Admin/>
 </template>
 
 <script>
-import AdminLayout from '../layouts/Admin.vue'
-
+import Admin from "@/components/admin/Admin";
+import api from "@/api";
+import {mapMutations} from "vuex";
 export default {
-    name: 'homeView',
-    components: {
-        AdminLayout
-    },
+  name: "HomeVue",
+  components:{
+    Admin
+  },
+  methods:{
+    ...mapMutations('auth',[
+        'updateAuthUser'
+    ])
+  },
+  mounted() {
+    api.getAuthUser().then((response) => {
+      this.updateAuthUser(response.data)
+    })
+  }
 }
 </script>
 
-<style lang='scss' scoped>
- 
+<style scoped>
+
 </style>
