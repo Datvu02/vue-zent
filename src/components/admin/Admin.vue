@@ -2,16 +2,10 @@
 <AdminLayout>
     <template #main>
         <div class="adminMainContent">
-            <div class="main-header">
-                <div class="logo">
-                    <h1 v-if="authUser.name">{{ authUser.name }}</h1>
-                    <!--              <img src="" alt="">-->
-                </div>
-            </div>
             <div class="main-content">
                 <div class="listTodo">
                     <draggable class="dragArea" :list="list" item-key="id" :animation="100" :move="moveList">
-                        <List v-for="(item,index) in list" :id="item.id" @openQuickEdit="openQuickEdit" @closeControlModal="closeControlModal" :key="index" @updateCardList="getDataList" @updateListTitle="handleUpdateList" @openActionList="openActionList" @openDetailCard="openDetailCard" :index="item.index" :item="item" />
+                        <Directories v-for="(item,index) in list" :id="item.id" @openQuickEdit="openQuickEdit" @closeControlModal="closeControlModal" :key="index" @updateCardList="getDataList" @updateListTitle="handleUpdateList" @openActionList="openActionList" @openDetailCard="openDetailCard" :index="item.index" :item="item" />
                     </draggable>
 
                     <div class="newList" v-if="!addList">
@@ -25,7 +19,7 @@
             </div>
         </div>
         <ModalSidebar v-if="showControlModalSidebar" @searchLabel="searchDatalabel" :card="card" :labels="labels" @closeLabelModal="closeControlModal" :offset="offset" @reloadLabel="reloadLabel" />
-        <QuickEdit v-if="showQuickEdit" @updateCard="quickEditCardTitle" @showControl="handleShowControl" @deleteCard="deleteCard" @closeQuickEdit="closeQuickEdit" @showMove="showMove" :card="card" :offset="offsetEdit" @openModal="openDetailCard" @updateCardList="getDataList" />
+        <EditCard v-if="showCardEdit" @updateCard="editCardTitle" @showControl="handleShowControl" @deleteCard="deleteCard" @closeCardEdit="closeCardEdit" @showMove="showMove" :card="card" :offset="offsetEdit" @openModal="openDetailCard" @updateCardList="getDataList" />
         <el-dialog v-if="dialogFormVisible" id="detailTodo" class="dialogTodo" :append-to-body="true" width="40%" :show-close="false" :visible.sync="dialogFormVisible" @close="closeModal">
             <div class="window-wrapper js-tab-parent" data-elevation="1"><a class="icon-md icon-close close-button js-close-window" @click="closeModal"><i class="iconColse el-icon-close"></i></a>
                 <div class="card-detail-window u-clearfix">
@@ -142,26 +136,26 @@
 
 <script>
 import AdminLayout from "@/layouts/Admin";
-import List from "@/components/admin/List";
-import NewList from "@/components/include/NewList";
-import ClickOutside from 'vue-click-outside'
-import draggable from "vuedraggable";
-import {
-    mapMutations,
-    mapState
-} from 'vuex'
-import api from '../../api';
-import _ from "lodash";
-import ModalSidebar from "@/components/include/ModalSidebar";
-import QuickEdit from "@/components/include/QuickEdit";
-import CheckList from "@/components/include/CheckList";
-import DialogSibar from "@/components/include/DialogSibar";
-import moment from "moment";
+import Directories from "@/components/admin/Directories";
+import NewList from "@/components/include/NewDirectory";
 import Action from "@/components/include/Action";
 import File from "@/components/include/File";
 import EditFile from "@/components/include/EditFile";
 import Delete from "@/components/include/Delete";
+import ModalSidebar from "@/components/include/ModalSidebar";
+import EditCard from "@/components/include/EditCard";
+import CheckList from "@/components/include/CheckList";
+import DialogSibar from "@/components/include/DialogSibar";
 import Move from "@/components/include/Move";
+import ClickOutside from 'vue-click-outside'
+import draggable from "vuedraggable";
+import api from '../../api';
+import _ from "lodash";
+import moment from "moment";
+import {
+    mapMutations,
+    mapState
+} from 'vuex'
 
 export default {
     name: "AdminVue",
@@ -170,7 +164,7 @@ export default {
             addList: false,
             data: [],
             showControlModalSidebar: false,
-            showQuickEdit: false,
+            showCardEdit: false,
             showActionList: false,
             showActionFile: false,
             labels: [],
@@ -195,11 +189,11 @@ export default {
     components: {
         Move,
         AdminLayout,
-        List,
+        Directories,
         draggable,
         NewList,
         ModalSidebar,
-        QuickEdit,
+        EditCard,
         CheckList,
         DialogSibar,
         Action,
@@ -304,10 +298,10 @@ export default {
             this.closeAll()
             this.offsetEdit = data
             this.getDetailCard(data.id)
-            this.showQuickEdit = true;
+            this.showCardEdit = true;
         },
-        closeQuickEdit() {
-            this.showQuickEdit = false;
+        closeCardEdit() {
+            this.showCardEdit = false;
         },
         async openDetailCard(id) {
             this.closeAll()
@@ -377,7 +371,7 @@ export default {
             })
         },
 
-        quickEditCardTitle(data) {
+        editCardTitle(data) {
             api.updateCard(data, data.id).then(() => {
                 this.getDetailCard(this.card.id)
             })
@@ -445,7 +439,7 @@ export default {
         },
         closeAll() {
             this.showActionList = false;
-            this.showQuickEdit = false;
+            this.showCardEdit = false;
             this.showEditFile = false;
             this.dialogFormVisible = false;
             this.showDelete = false
@@ -539,40 +533,41 @@ export default {
 .adminMainContent {
     height: 100%;
     display: flex;
+        padding-top: 30px;
     flex-direction: column;
     margin-right: 0;
     position: relative;
     transition: margin .1s ease-in;
 
-    .main-header {
-        height: auto;
-        padding: 8px 4px 4px 8px;
-        position: relative;
-        overflow: hidden;
+    // .main-header {
+    //     height: auto;
+    //     padding: 8px 4px 4px 8px;
+    //     position: relative;
+    //     overflow: hidden;
 
-        .logo {
-            background: transparent;
-            cursor: default;
-            font-size: 18px;
-            font-weight: 700;
-            height: 32px;
-            padding: 0;
-            text-decoration: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            float: left;
-            color: #fff;
-            line-height: 0;
+    //     .logo {
+    //         background: transparent;
+    //         cursor: default;
+    //         font-size: 18px;
+    //         font-weight: 700;
+    //         height: 32px;
+    //         padding: 0;
+    //         text-decoration: none;
+    //         overflow: hidden;
+    //         text-overflow: ellipsis;
+    //         white-space: nowrap;
+    //         float: left;
+    //         color: #fff;
+    //         line-height: 0;
 
-            h1 {
-                font-size: 18px;
-                font-weight: 700;
-                padding: 0 12px;
-                color: #2c3e50;
-            }
-        }
-    }
+    //         h1 {
+    //             font-size: 18px;
+    //             font-weight: 700;
+    //             padding: 0 12px;
+    //             color: #2c3e50;
+    //         }
+    //     }
+    // }
 
     .main-content {
         position: relative;

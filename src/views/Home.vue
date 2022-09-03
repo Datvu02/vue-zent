@@ -4,23 +4,11 @@
 
 <script>
 import Admin from "@/components/admin/Admin";
-import api from "@/api";
-import {mapMutations} from "vuex";
 export default {
   name: "HomeVue",
   components:{
     Admin
   },
-  methods:{
-    ...mapMutations('auth',[
-        'updateAuthUser'
-    ])
-  },
-  mounted() {
-    api.getAuthUser().then((response) => {
-      this.updateAuthUser(response.data)
-    })
-  }
 }
 </script>
 

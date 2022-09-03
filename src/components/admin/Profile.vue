@@ -1,54 +1,33 @@
 <template>
 <AdminLayout>
     <template #main>
-        <div class="main-header">
-            <div class="headerWarp">
-                <div class="infoWarp">
-                    <div class="info">
-                        <div class="infoAvatar">
-                            <div class="avatarCover">
-                                <img v-if="authUser.avatar !=null " :src="'http://vuecourse.zent.edu.vn/storage/users/'+authUser.avatar" alt="">
-                                <img v-else :src="profile.avatar" alt="">
-                            </div>
-                        </div>
-                        <div class="infoName">
-                            <span class="title">{{ authUser.name }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="main-content">
             <div class="mainWrap">
                 <div class="content">
                     <div class="profile">
-                        <img class="bannerProfile" src="https://a.trellocdn.com/prgb/dist/images/member-home/taco-privacy.ced1e262c59e0225e3aa.svg" alt="">
+                        <img class="bannerProfile" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_Q0hNWcgVav3I9XvlTp3ACTXNy3Xitj1r4w&usqp=CAU" alt="">
                         <h1 class="titleContent">Quản lý thông tin của bạn</h1>
-                        <p class="subContent">Đây là nơi bạn có thể thay đổi thông tin hồ sơ của mình và tìm hiểu những gì người
-                            dùng và các Power-Ups khác sẽ có thể thấy. Để tìm hiểu thêm, hãy xem Điều khoản dịch vụ hoặc Chính sách
-                            Riêng tư của chúng tôi.</p>
                         <h3>Thông tin</h3>
                         <hr>
                         <div class="changeProfile">
                             <div class="profileAvatar">
-                                <h3>hình đại diện</h3>
+                                <h3>Hình đại diện</h3>
                                 <div class="avatarCover">
-                                    <Upload class="avatarUpload" @changeImage="onChangeImage" :url="url" />
+                                    <Upload class="avatarUpload" :url="authUser.avatar" />
                                 </div>
                             </div>
-                            <form class="profileForm" action="">
+                            <el-form :model="authUser" status-icon :rules="rules" ref="authUser" class="profileForm demo-ruleForm">
                                 <div class="subLabel">
                                     <span>Tên đầy đủ</span>
                                 </div>
                                 <div class="formInput">
-                                    <input v-if="authUser.name != null" class="formControl" type="text" v-model="name">
-                                    <div v-if="errorName !== '' " class="error">
-                                        <span> {{ errorName }} </span>
-                                    </div>
+                                    <el-form-item prop="name">
+                                        <el-input v-model="authUser.name"></el-input>
+                                    </el-form-item>
                                 </div>
 
-                                <button class="saveProfile" type="button" @click="handleUpdateInfo">Lưu</button>
-                            </form>
+                                <button class="saveProfile" type="button" @click="handleUpdateInfo('authUser')">Lưu</button>
+                            </el-form>
                         </div>
 
                         <hr>
@@ -56,40 +35,24 @@
                         <h3>Đổi mật khẩu</h3>
                         <hr>
                         <div class="changePassword">
-                            <form class="profileForm" action="">
-                                <div class="subLabel">
-                                    <span>Mật khẩu cũ</span>
-                                </div>
-                                <div class="formInput">
-                                    <input class="formControl" type="password" v-model="current_password">
-                                    <div v-if="errorCurrentPassword !== '' " class="error">
-                                        <span> {{ errorCurrentPassword }} </span>
-                                    </div>
-                                </div>
-
+                            <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="demo-ruleForm">
                                 <div class="subLabel">
                                     <span>Mật khẩu mới</span>
                                 </div>
-                                <div class="formInput">
-                                    <input class="formControl" type="password" v-model="password">
-                                    <div v-if="errorPassword !== '' " class="error">
-                                        <span> {{ errorPassword }} </span>
-                                    </div>
-                                </div>
-
+                                <el-form-item prop="pass">
+                                    <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+                                </el-form-item>
                                 <div class="subLabel">
-                                    <span>Nhập lại mật khẩu</span>
+                                    <span>Viết lại mật khẩu mới</span>
                                 </div>
-                                <div class="formInput">
-                                    <input class="formControl" type="password" v-model="password_confirmation">
-                                    <div v-if="errorPasswordConfirm !== '' " class="error">
-                                        <span> {{ errorPasswordConfirm }} </span>
-                                    </div>
-                                </div>
-
-                                <button class="btn-change-password" type="button" @click="handleUpdatePassword">Thay đổi mật khẩu
-                                </button>
-                            </form>
+                                <el-form-item prop="checkPass">
+                                    <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button class="saveProfile" type="primary" @click="submitForm('ruleForm')">Thay đổi</el-button>
+                                    <el-button @click="resetForm('ruleForm')">Hủy</el-button>
+                                </el-form-item>
+                            </el-form>
                         </div>
                     </div>
                 </div>
@@ -105,8 +68,7 @@ import {
     mapMutations,
     mapState
 } from "vuex";
-import Upload from "@/components/include/Upload";
-import _ from "lodash";
+import Upload from "@/components/include/UploadAvatar";
 import api from '../../api'
 
 export default {
@@ -115,93 +77,113 @@ export default {
         AdminLayout,
         Upload
     },
+    data() {
+        var validatePass = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('Vui lòng điền mật khẩu'));
+            } else {
+                if (this.ruleForm.checkPass !== '') {
+                    this.$refs.ruleForm.validateField('checkPass');
+                }
+                callback();
+            }
+        };
+        var validatePass2 = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('Vui lòng nhập lại mật khẩu'));
+            } else if (value !== this.ruleForm.pass) {
+                callback(new Error('Mật khẩu không giống'));
+            } else {
+                callback();
+            }
+        };
+        return {
+            avatar: "",
+            ruleForm: {
+                pass: '',
+                checkPass: '',
+            },
+            rules: {
+                name: [{
+                        required: true,
+                        message: 'Vui lòng nhập họ tên',
+                        trigger: 'blur'
+                    },
+                    {
+                        min: 3,
+                        max: 20,
+                        message: 'Tên khôn được ngắn hơn 3 và dài hơn 20 ký tự',
+                        trigger: 'blur'
+                    }
+                ],
+                pass: [{
+                    validator: validatePass,
+                    trigger: 'blur'
+                }],
+                checkPass: [{
+                    validator: validatePass2,
+                    trigger: 'blur'
+                }],
+            }
+        };
+    },
     methods: {
         ...mapMutations('auth', [
             'updateAuthUser'
         ]),
 
-        handleUpdatePassword() {
-            if (this.isValidPassword()) {
-                let data = {
-                    password: this.password,
-                    password_confirmation: this.password_confirmation,
-                    current_password: this.current_password
-                }
-                api.updatePassword(data).then(() => {
-                    this.$message({
-                        type: "success",
-                        message: "Cập nhật thành công"
-                    })
-                }).catch(error => {
-                    this.errorPassword = _.get(error, 'password', '')
-                    this.errorPasswordConfirm = _.get(error, 'password_confirmation', '')
-                    this.errorCurrentPassword = _.get(error, 'current_password', '')
-                })
-            }
-        },
-        handleUpdateInfo() {
-            if (this.isValidInfo()) {
-                const frmdata = new FormData();
-                frmdata.append('name', this.name)
-                if (this.avatar != null) {
-                    frmdata.append('avatar', this.avatar)
-                }
-
-                api.updateInfo(frmdata).then(() => {
-                    api.getAuthUser().then((res) => {
-                        this.updateAuthUser(res.data)
+        submitForm(formName) {
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                    let data = {
+                        password: this.ruleForm.pass,
+                        password_confirmation: this.ruleForm.checkPass,
+                    }
+                    api.updatePassword(data).then(() => {
                         this.$message({
                             type: "success",
                             message: "Cập nhật thành công"
                         })
+                    }).catch(error => {
+                        console.log(error);
                     })
-                })
-            }
+                } else {
+                    console.log('Thất bại');
+                    return false;
+                }
+            });
         },
-        onChangeImage(img) {
-            this.avatar = img
+        resetForm(formName) {
+            this.$refs[formName].resetFields();
         },
-        isValidPassword() {
-            let error = false;
-            this.resetError()
 
-            if (this.password.length < 6) {
-                error = true;
-                this.errorPassword = 'Mật khẩu phải lớn hơn 6 ký tự';
-            }
+        handleUpdateInfo(formName) {
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                    const frmdata = new FormData();
+                    frmdata.append('name', this.authUser.name)
+                    if (this.authUser.url != null) {
+                        frmdata.append('avatar', this.authUser.url)
+                    }else if (this.authUser.url == ''){
+                        this.$message.error({
+                            message: 'Bạn chưa chọn ảnh'
+                        })
+                    }
 
-            if (this.password.length === 0) {
-                error = true;
-                this.errorPassword = 'Mật khẩu mới không được để trống';
-            }
-
-            if (this.current_password.length === 0) {
-                error = true;
-                this.errorCurrentPassword = 'Mật khẩu cũ không được để trống';
-            }
-
-            if (this.password !== this.password_confirmation) {
-                error = true;
-                this.errorPasswordConfirm = "Mật khẩu không trùng khớp"
-            }
-
-            return !error
-        },
-        isValidInfo() {
-            let error = false;
-            this.resetError()
-
-            if (this.name.length === 0) {
-                error = true;
-                this.errorName = 'Tên người dùng không được để trống';
-            }
-            return !error
+                    api.updateInfo(frmdata).then(() => {
+                        api.getAuthUser().then((res) => {
+                            this.updateAuthUser(res.data)
+                            this.$message({
+                                type: "success",
+                                message: "Cập nhật thành công"
+                            })
+                        })
+                    })
+                }
+            })
         },
         resetError() {
-            this.errorName = ""
-            this.errorCurrentPassword = ""
-            this.errorPassword = ""
-            this.errorPasswordConfirm = ""
+            this.rule.name = this.rule.pass = this.rule.checkPass = ""
         }
     },
     computed: {
@@ -212,38 +194,6 @@ export default {
             'profile'
         ]),
     },
-    data() {
-        return {
-            name: "",
-            avatar: "",
-            url: "",
-            password: "",
-            current_password: "",
-            password_confirmation: "",
-            errorName: "",
-            errorPassword: "",
-            errorCurrentPassword: "",
-            errorPasswordConfirm: "",
-        }
-    },
-    mounted() {
-        this.name = this.authUser.name;
-        this.url = this.authUser.avatar
-    },
-    watch: {
-        name() {
-            this.errorName = ''
-        },
-        current_password() {
-            this.errorCurrentPassword = ""
-        },
-        password() {
-            this.errorPassword = ""
-        },
-        password_confirmation() {
-            this.errorPasswordConfirm = ""
-        }
-    }
 }
 </script>
 
@@ -329,9 +279,10 @@ export default {
 
             .bannerProfile {
                 display: block;
-                margin: 18px auto 42px;
-                max-width: 100%;
-                height: auto;
+                margin: 0 auto 30px;
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
             }
 
             h1 {
@@ -558,7 +509,7 @@ export default {
                         font-size: 14px;
                         letter-spacing: 0;
                         margin-top: 0;
-                        color: #172b4d;
+                        // color: #172b4d;
                         font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans, Ubuntu, Droid Sans, Helvetica Neue, sans-serif;
                         line-height: 20px;
                         box-sizing: border-box;
@@ -569,9 +520,9 @@ export default {
                         cursor: pointer;
                         padding: 6px 12px;
                         text-decoration: none;
-                        background-color: rgba(9, 30, 66, .04);
+                        // background-color: rgba(9, 30, 66, .04);
                         box-shadow: none;
-                        border: none;
+                        // border: none;
                         transition-property: background-color, border-color, box-shadow;
                         transition-duration: 85ms;
                         transition-timing-function: ease;

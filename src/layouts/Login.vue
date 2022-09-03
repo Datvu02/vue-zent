@@ -68,15 +68,11 @@
 <script>
 import {
     mapMutations,
-    mapState
 } from 'vuex'
 import api from '../api'
 
 export default {
     name: 'LayoutLogin',
-    computed: {
-        ...mapState('auth', ['user']),
-    },
     data() {
         var validatePass2 = (rule, value, callback) => {
             if (value === '') {
@@ -143,7 +139,7 @@ export default {
         resetValue() {
             this.form.name = this.form.email = this.form.pass = this.form.checkPass = ''
         },
-        ...mapMutations('auth', ['updateAccessToken', 'updateStatusLogin', 'updateUserLogin']),
+        ...mapMutations('auth', ['updateLoginStatus', 'updateAuthUser', 'updateToken']),
         submitForm(formName) {
             let data = {
                 'email': formName.email,
@@ -153,17 +149,16 @@ export default {
                 if (valid) {
                     api.login(data)
                         .then((res) => {
-                            // login thành công
-                            this.updateAccessToken(res.data.access_token);
-                            this.updateStatusLogin(true);
+                            this.updateToken(res.data.access_token);
+                            this.updateLoginStatus(true);
                             this.$router.push({
                                 name: "home"
                             })
                             this.$message.success({
                                 message: 'Đăng nhập thành công.',
                             });
-                            api.getUserLogin().then((res) => {
-                                this.updateUserLogin(res.data);
+                            api.getAuthUser().then((res) => {
+                                this.updateAuthUser(res.data);
                             })
                         })
                         .catch(() => {

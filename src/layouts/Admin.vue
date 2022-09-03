@@ -4,10 +4,10 @@
         <el-header class="adminHeader">
             <div class="header-container">
                 <div class="header-left">
-                    <a href="/admin" class="heard-btn"><span><i class="el-icon-house"></i></span></a>
+                    <a href="/" class="heard-btn"><span><i class="el-icon-house"></i></span></a>
                 </div>
                 <div class="header-center">
-                    <a class="logo" href="/admin">
+                    <a class="logo" href="/">
                         <img src="../assets/image/logo.png" alt="logo">
                     </a>
                 </div>
@@ -41,23 +41,28 @@ import {
     mapMutations,
     mapState
 } from "vuex";
+import api from '@/api'
 
 export default {
     name: "AdminLayout",
     methods: {
         ...mapMutations('auth', ['updateLoginStatus', 'updateAuthUser', 'updateToken']),
         handleLogout() {
-            localStorage.removeItem('access_token')
-            localStorage.removeItem('vuex')
-            this.updateLoginStatus(false)
-            this.updateToken(null)
-            this.updateAuthUser({})
-
-            if (this.$router.currentRoute.name !== 'Login') {
-                this.$router.push({
-                    name: 'Login'
+            api.logout().then(() => {
+                this.updateLoginStatus(false)
+                this.updateToken(null)
+                this.updateAuthUser({})
+                this.nextPage('account')
+            }).catch(() => {
+                this.$message.error({
+                    message: 'Đăng xuất không thành công'
                 })
-            }
+            })
+        },
+        nextPage(index) {
+            this.$router.push({
+                name: index
+            })
         }
     },
     computed: {
@@ -145,8 +150,8 @@ export default {
                     .el-dropdown {
                         .el-avatar {
                             outline: none;
-                            width: 30px;
-                            height: 30px;
+                            width: 35px;
+                            height: 35px;
                         }
 
                         a {

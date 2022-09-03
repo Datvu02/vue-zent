@@ -5,31 +5,31 @@
 </template>
 
 <script>
-import {mapState, mapMutations } from 'vuex'
-import api from './api'
+// import {mapState, mapMutations } from 'vuex'
+// import api from './api'
 
 export default {
   name: 'App',
-  computed: {
-    ...mapState('auth', ['isAuthenticated']),
-  },
-  methods: {
-    ...mapMutations('auth', ['updateLoginStatus','updateAuthUser']),
-    async handleLogout() {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('vuex')
-      this.updateLoginStatus(false)
-      this.updateAuthUser({})
-      if (this.$router.currentRoute.name !== 'Login') {
-        await this.$router.push('/Login' )
-      }
-    }
-  },
-  mounted() {
-    api.getAuthUser().then((response) => {
-      this.updateAuthUser(response.data)
-    })
-  }
+  // computed: {
+  //   ...mapState('auth', ['isAuthenticated']),
+  // },
+  // methods: {
+  //   ...mapMutations('auth', ['updateLoginStatus','updateAuthUser']),
+  //   async handleLogout() {
+  //     localStorage.removeItem('access_token')
+  //     localStorage.removeItem('vuex')
+  //     this.updateLoginStatus(false)
+  //     this.updateAuthUser({})
+  //     if (this.$router.currentRoute.name !== 'Login') {
+  //       await this.$router.push('/Login' )
+  //     }
+  //   }
+  // },
+  // mounted() {
+  //   api.getAuthUser().then((response) => {
+  //     this.updateAuthUser(response.data)
+  //   })
+  // }
 }
 </script>
 
