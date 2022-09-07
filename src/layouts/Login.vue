@@ -2,7 +2,7 @@
 <div id="layoutLogin">
     <div class="card">
         <div class="logo">
-            <img src="https://technext.github.io/dashtreme/assets/images/logo-icon.png" alt="">
+            <img src="../assets/image/logo.png" alt="">
         </div>
         <div id="login" v-if="change">
             <el-form :model="form" :rules="rules" ref="form" label-width="120px" class="demo-form">
@@ -78,7 +78,7 @@ export default {
             if (value === '') {
                 callback(new Error('Vui lòng nhập lại mật khẩu'));
             } else if (value !== this.form.pass) {
-                callback(new Error('Two inputs don\'t match!'));
+                callback(new Error('Mật khẩu chưa giống'));
             } else {
                 callback();
             }
@@ -151,14 +151,15 @@ export default {
                         .then((res) => {
                             this.updateToken(res.data.access_token);
                             this.updateLoginStatus(true);
-                            this.$router.push({
-                                name: "home"
+                            this.resetValue()
+                            api.getAuthUser().then((res) => {
+                                this.updateAuthUser(res.data);
                             })
                             this.$message.success({
                                 message: 'Đăng nhập thành công.',
                             });
-                            api.getAuthUser().then((res) => {
-                                this.updateAuthUser(res.data);
+                            this.$router.push({
+                                name: "home"
                             })
                         })
                         .catch(() => {
@@ -183,11 +184,12 @@ export default {
             this.$refs['form'].validate((valid) => {
                 if (valid) {
                     api.register(data).then(() => {
+                        this.resetValue()
+                        this.resetChange(false)
                         this.$message({
                             message: 'Tạo tài khoản thành công.',
                             type: 'success'
                         });
-                        this.resetValue()
                     }).catch(() => {
                         this.$message.error({
                             message: 'Thêm mới tài khoản thất bại!',
@@ -201,7 +203,7 @@ export default {
             })
         }
     },
-    
+
 }
 </script>
 
@@ -274,7 +276,12 @@ export default {
         }
 
         .logo {
+            width: 50%;
+            padding-left: 25%;
             text-align: center;
+            img{
+                width: 100%;
+            }
         }
     }
 }

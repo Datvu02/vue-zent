@@ -262,13 +262,11 @@ export default {
         },
         handleAddList(data) {
             api.addList(data).then(() => {
-                // console.log(response)
                 this.getDataList();
             })
         },
         handleUpdateList(data) {
-            api.updateTitleList(data.data, data.id).then((response) => {
-                console.log(response)
+            api.updateTitleList(data.data, data.id).then(() => {
                 this.getDataList();
             })
         },
@@ -356,8 +354,6 @@ export default {
                 deadline: moment(this.deadline).format('YYYY-MM-DD HH:mm:ss'),
                 directory_id: this.card.directory_id
             }
-
-            console.log(data)
 
             this.changeDeadline(data)
         },
@@ -519,7 +515,6 @@ export default {
         this.checkDeadline()
     },
 
-    // do not forget this section
     directives: {
         ClickOutside
     }
@@ -533,41 +528,11 @@ export default {
 .adminMainContent {
     height: 100%;
     display: flex;
-        padding-top: 30px;
+    padding-top: 30px;
     flex-direction: column;
     margin-right: 0;
     position: relative;
     transition: margin .1s ease-in;
-
-    // .main-header {
-    //     height: auto;
-    //     padding: 8px 4px 4px 8px;
-    //     position: relative;
-    //     overflow: hidden;
-
-    //     .logo {
-    //         background: transparent;
-    //         cursor: default;
-    //         font-size: 18px;
-    //         font-weight: 700;
-    //         height: 32px;
-    //         padding: 0;
-    //         text-decoration: none;
-    //         overflow: hidden;
-    //         text-overflow: ellipsis;
-    //         white-space: nowrap;
-    //         float: left;
-    //         color: #fff;
-    //         line-height: 0;
-
-    //         h1 {
-    //             font-size: 18px;
-    //             font-weight: 700;
-    //             padding: 0 12px;
-    //             color: #2c3e50;
-    //         }
-    //     }
-    // }
 
     .main-content {
         position: relative;
@@ -590,7 +555,6 @@ export default {
             left: 0;
             top: 0;
             -webkit-overflow-scrolling: touch;
-            // -webkit-transform: translateZ(0);
             height: 98%;
 
             .newList {
@@ -622,7 +586,6 @@ export default {
                         font-size: 20px;
                         line-height: 24px;
                         font-weight: 600;
-                        //transition: width 0.4 s ease-in-out;
                     }
 
                     textarea:focus {
@@ -632,7 +595,6 @@ export default {
                         border-color: #0079bf;
                         overflow: hidden;
                         overflow-wrap: break-word;
-                        /// / width: 96 %;
                     }
                 }
 
@@ -660,29 +622,23 @@ export default {
             }
         }
 
-        /* width */
         .listTodo::-webkit-scrollbar {
             height: 8px;
-            //width: 98%;
         }
 
-        /* Track */
         .listTodo::-webkit-scrollbar-track {
             border-radius: 7px;
             background-color: #4f4f5073;
         }
 
-        /* Handle */
         .listTodo::-webkit-scrollbar-thumb {
             background: #bcbcbe63;
             border-radius: 7px;
         }
 
-        /* Handle on hover */
         .listTodo::-webkit-scrollbar-thumb:hover {
             background: #d3d3d87d;
         }
-
     }
 }
 </style>
